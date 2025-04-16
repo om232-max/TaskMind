@@ -7,7 +7,7 @@ st.set_page_config(page_title="TaskMind - AI Assistant", page_icon="🤖")
 st.title("🧠 TaskMind AI Assistant")
 st.markdown("Ask me anything! I understand tasks, general queries, and real-time questions.")
 
-# Initialize session state
+# Initialize session state for chat history
 if "chat_logs" not in st.session_state:
     st.session_state.chat_logs = []
 
@@ -33,7 +33,7 @@ if st.button("Submit") and user_input.strip():
 
     elif result["type"] == "image":
         if os.path.exists(result["path"]):
-            st.image(result["path"], caption="Generated Image", use_column_width=True)
+            st.image(result["path"], caption="Generated Image", use_container_width=True)
             with open(result["path"], "rb") as file:
                 st.download_button(
                     label="⬇️ Download Image",
@@ -55,7 +55,7 @@ if st.session_state.chat_logs:
             st.write(f"**Assistant:** {assistant_reply['content']}")
         elif assistant_reply["type"] == "image":
             if os.path.exists(assistant_reply["path"]):
-                st.image(assistant_reply["path"], caption="Generated Image", use_column_width=True)
+                st.image(assistant_reply["path"], caption="Generated Image", use_container_width=True)
                 with open(assistant_reply["path"], "rb") as file:
                     st.download_button(
                         label=f"⬇️ Download Image ({os.path.basename(assistant_reply['path'])})",
