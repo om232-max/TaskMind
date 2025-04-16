@@ -123,7 +123,7 @@ async def generate_image(prompt: str):
 def results(user, prompt):
     decisions = FirstLayerDMM(preamble, prompt)
     if not decisions:
-        return "Sorry, I couldn't understand your query."
+        return {"type": "text", "content": "Sorry, I couldn't understand your query."}
 
     task = decisions[0]
 
@@ -133,18 +133,20 @@ def results(user, prompt):
     *** Do not provide notes in the output, just answer the question and never mention your training data. ***"""
 
     if task.startswith("general"):
-        return ChatBot(user, prompt, system_prompt)
+        text = ChatBot(user, prompt, system_prompt)
+        return {"type": "text", "content": text}
 
     elif task.startswith("realtime"):
         search_data = GoogleSearch(prompt)
-        return ChatBot(user, prompt + "\n\n" + search_data, system_prompt)
+        text = ChatBot(user, prompt + "\n\n" + search_data, system_prompt)
+        return {"type": "text", "content": text}
 
     elif task.startswith("generate image"):
         prompt_text = task.replace("generate image", "").strip()
         path = asyncio.run(generate_image(prompt_text))
         if path:
-            return f"![Generated Image](./{path})"
+            return {"type": "image", "path": path}
         else:
-            return "Image generation failed. Please try again."
+            return {"type": "text", "content": "Image generation failed. Please try again."}
 
-    return f"Task not supported yet: {task}"
+    return {"type": "text", "content": f"Task not supported yet: {task}"}
