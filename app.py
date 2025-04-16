@@ -7,7 +7,7 @@ st.set_page_config(page_title="TaskMind - AI Assistant", page_icon="🤖")
 st.title("🧠 TaskMind AI Assistant")
 st.markdown("Ask me anything! I understand tasks, general queries, and real-time questions.")
 
-# Initialize session state for chat history
+# Initialize session state
 if "chat_logs" not in st.session_state:
     st.session_state.chat_logs = []
 
@@ -65,4 +65,3 @@ if st.session_state.chat_logs:
                     )
             else:
                 st.write("**Assistant:** [Image not found]")
-
