@@ -26,11 +26,12 @@ client = Groq(api_key=GroqAPIkey)
 genai.configure(api_key=GeminiAPIkey)
 model = genai.GenerativeModel("gemini-1.5-pro")
 
-# Task categories for routing
+# Task categories
 funcs = ["exit", "general", "realtime", "open", "close", "play", "generate image",
          "content", "google search", "youtube search", "reminder", "map"]
 
-# Decision model preamble
+# Preamble (unchanged)
+
 preamble = """
 You are a very accurate Decision-Making Model, which decides what kind of a query is given to you.
 You will decide whether a query is a 'general' query, a 'realtime' query, or is asking to perform any task or automation like 'open facebook, instagram', 'can you write a application and open it in notepad'
@@ -63,7 +64,7 @@ def FirstLayerDMM(preamble, prompt):
 def RealtimeInformation():
     return datetime.datetime.now().strftime("%A, %d %B %Y, %H:%M:%S")
 
-# Google search for real-time queries
+# Google search
 def GoogleSearch(query):
     results = list(search(query, advanced=True, num_results=5))
     Answer = f"The search results for '{query}' are:\n[start]\n"
@@ -72,11 +73,16 @@ def GoogleSearch(query):
     Answer += "[end]"
     return Answer
 
+# Map helper
+def get_map_url(location):
+    location = location.strip()
+    return f"https://www.google.com/maps/search/{location.replace(' ', '+')}"
+
 # Clean AI response
 def AnswerModifier(answer):
     return '\n'.join([line for line in answer.split('\n') if line.strip()]).replace("</s>", "")
 
-# Chat using Groq (LLaMA model)
+# Chat
 def ChatBot(user, query, system_prompt):
     log_path = f"chat_logs/{user}.json"
     os.makedirs("chat_logs", exist_ok=True)
@@ -134,7 +140,7 @@ async def generate_image(prompt: str):
         return file_path
     return None
 
-# Router
+# Main router
 def results(user, prompt):
     decisions = FirstLayerDMM(preamble, prompt)
     if not decisions:
@@ -163,5 +169,10 @@ def results(user, prompt):
             return {"type": "image", "path": path}
         else:
             return {"type": "text", "content": "Image generation failed. Please try again."}
+
+    elif task.startswith("map"):
+        location = task.replace("map", "").strip()
+        map_url = get_map_url(location)
+        return {"type": "map", "url": map_url}
 
     return {"type": "text", "content": f"Task not supported yet: {task}"}
