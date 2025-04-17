@@ -2,25 +2,22 @@ import streamlit as st
 from main import results, Username
 import os
 
-# Page setup
 st.set_page_config(page_title="TaskMind - AI Assistant", page_icon="🤖")
 st.title("🧠 TaskMind AI Assistant")
 st.markdown("Ask me anything! I understand tasks, general queries, and real-time questions.")
 
-# Initialize session state for chat history
+# Session state
 if "chat_logs" not in st.session_state:
     st.session_state.chat_logs = []
 
-# Input field
 user_input = st.text_input("📝 Enter your query:")
 
-# Handle query
+# Process query
 if st.button("Submit") and user_input.strip():
     st.markdown("⏳ Processing your request...")
-
     result = results(Username, user_input)
 
-    # Save to chat history
+    # Save chat log
     st.session_state.chat_logs.append({
         "user": user_input,
         "assistant": result
@@ -44,7 +41,10 @@ if st.button("Submit") and user_input.strip():
         else:
             st.error("Image not found.")
 
-# Display chat history
+    elif result["type"] == "map":
+        st.markdown(f"[🗺️ Click here to open the map]({result['url']})", unsafe_allow_html=True)
+
+# Chat history
 if st.session_state.chat_logs:
     st.markdown("### 🗨️ Chat History:")
     for entry in st.session_state.chat_logs:
@@ -65,3 +65,5 @@ if st.session_state.chat_logs:
                     )
             else:
                 st.write("**Assistant:** [Image not found]")
+        elif assistant_reply["type"] == "map":
+            st.markdown(f"**Assistant:** [🗺️ Open Map]({assistant_reply['url']})", unsafe_allow_html=True)
